@@ -18,9 +18,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import json
 import math
 import os
+import pickle
 
 
 import tensorflow as tf
@@ -41,7 +41,7 @@ tf.flags.DEFINE_string("vocab_file", "", "Text file containing the vocabulary.")
 tf.flags.DEFINE_string("input_files", "",
                        "File pattern or comma-separated list of file patterns "
                        "of image files.")
-tf.flags.DEFINE_string("coco_puns", "", "json file containing the pun words associated with coco images.")
+tf.flags.DEFINE_string("pun_dict", "", "python pickle file containing the pun dictionary.")
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -55,13 +55,13 @@ def remove_stopwords(caption):
   return keywords
 
 
-def get_puns(key):
-  """Return a list of puns associated with the key image."""
-  data = json.loads(open(FLAGS.coco_puns).read())
-  pun_list = data[key]
-  puns = []
-  for element in pun_list:
-    puns.append(element[0])
+def get_puns(keywords):
+  """Return a list of puns corresponding to the keywords list."""
+  with open(FLAGS.pun_dict, 'rb') as f:
+    u = pickle._Unpickler(f)
+    u.encoding = 'latin1'
+    p = u.load()
+  puns = [list(p[keywords[i]])[j] for i in range(len(keywords)) if keywords[i] in p for j in range(len(p[keywords[i]]))]
   return puns
 
 
@@ -90,27 +90,32 @@ def main(_):
     # Prepare the caption generator. Here we are implicitly using the default
     # beam search parameters. See caption_generator.py for a description of the
     # available beam search parameters.
-    img_key = FLAGS.input_files
-    puns = get_puns(img_key)
-    generator = caption_generator.PunnyCaptionGenerator(model, puns, vocab)
+    generator = caption_generator.CaptionGenerator(model, vocab)
 
     for filename in filenames:
       with tf.gfile.GFile(filename, "rb") as f:
         image = f.read()
       keywords = []
       captions = generator.beam_search(sess, image)
-      print("Captions for image %s:" % os.path.basename(filename))
+      print("\nCaptions for image %s:" % os.path.basename(filename))
       for i, caption in enumerate(captions):
         # Ignore begin and end words.
         sentence = [vocab.id_to_word(w) for w in caption.sentence[1:-1]]
         sentence = " ".join(sentence)
-        # print("  %d) %s (p=%f)" % (i, sentence, math.exp(caption.logprob)))
-        print("  %d) %s (p=%f)" % (i, sentence, caption.logprob))
+        print("  %d) %s (p=%f)" % (i, sentence, math.exp(caption.logprob)))
         words = remove_stopwords(sentence)
         keywords = list(set(keywords).union(set(words)))
 
-      # Later - make use of above keywords obtained by CaptionGenerator
-      # to obtain puns for PunnyCaptionGenerator instead of using get_puns
+      # Get puns for keywords obtained from CaptionGenerator and pass to PunnyCaptionGenerator
+      puns = get_puns(keywords)
+      generator = caption_generator.PunnyCaptionGenerator(model, puns, vocab)
+      captions = generator.beam_search(sess, image)
+      print("\nPunny Captions for image %s:" % os.path.basename(filename))
+      for i, caption in enumerate(captions):
+        # Ignore begin and end words.
+        sentence = [vocab.id_to_word(w) for w in caption.sentence[1:-1]]
+        sentence = " ".join(sentence)
+        print("  %d) %s (logp=%f)" % (i, sentence, caption.logprob))
 
 
 if __name__ == "__main__":
