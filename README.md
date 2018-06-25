@@ -40,3 +40,33 @@ bazel-bin/im2txt/run_inference \
 --pun_dict=${PUN_DICT} \
 --input_files=${IMAGE_FILE}
 ```
+
+## Example
+### Input image
+![test](https://user-images.githubusercontent.com/13128829/41868058-923493e8-78d2-11e8-9435-7b4b2c2204f5.jpg)
+
+### Output
+```
+Captions for image test.jpg:
+  0) a piece of cake on a plate with a fork . (p=0.005761)
+  1) a piece of chocolate cake on a white plate . (p=0.003032)
+  2) a piece of chocolate cake on a plate with a fork . (p=0.002271)
+
+Punny Captions for image test.jpg:
+  0) peace of cake on a plate with a fork . (logp=-20.962578)
+  1) peace of chocolate cake on a white plate . (logp=-21.737056)
+  2) peace of chocolate cake on a plate with a fork . (logp=-22.183619)
+  3) a peace of chocolate cake on a plate . (logp=-18.170367)
+  4) a peace of chocolate cake on a white plate . (logp=-18.171735)
+  5) a peace of chocolate cake on a plate with a fork . (logp=-19.184663)
+  6) a plate folk with a piece of cake on it . (logp=-24.674716)
+  7) a plate folk with a piece of cake on it (logp=-25.122556)
+  8) a plate folk with a piece of cake and a fork . (logp=-25.430850)
+  9) a slice of peace cake on a plate . (logp=-20.925564)
+  10) a slice of peace cake on a plate with a fork . (logp=-20.974435)
+  11) a slice of peace cake with a fork on a plate . (logp=-21.497675)
+  12) a piece of cake folk on a plate . (logp=-21.508276)
+  13) a piece of cake folk on a plate with a fork . (logp=-21.737152)
+  14) a piece of cake folk on a plate (logp=-22.297132)
+
+```
