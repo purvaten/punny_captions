@@ -1,7 +1,7 @@
 # Punny Captions: Witty Wordplay in Image Descriptions
 This is an implementation of the NAACL '18 paper "Punny Captions: Witty Wordplay in Image Descriptions", by Arjun Chandrasekaran, Devi Parikh & Mohit Bansal. The forward RNN implementation is complete.
 
-The pretrained model for the "Show and Tell" [paper](https://arxiv.org/abs/1609.06647) has been used from [here](https://github.com/KranthiGV/Pretrained-Show-and-Tell-model), along with the original paper implementation files in im2txt from [here](https://github.com/tensorflow/models/tree/master/research/im2txt). Changes have been made primarily to ```im2txt/caption_generator``` and ```im2txt/run_inference``` files.
+The pretrained model for the "Show and Tell" [paper](https://arxiv.org/abs/1609.06647) has been used from [here](https://github.com/KranthiGV/Pretrained-Show-and-Tell-model), along with the original paper implementation files in im2txt from [here](https://github.com/tensorflow/models/tree/master/research/im2txt). Changes have been made primarily to ```im2txt/caption_generator``` and ```im2txt/run_inference``` files. The code for extracting the top-5 object categories predicted by the Inception-ResNet-v2 model has been used from [here](https://github.com/fchollet/deep-learning-models/blob/master/inception_resnet_v2.py). The file ``inception_resnet_v2.py`` has been added to ``im2txt`` folder.
 
 Full text available at: https://arxiv.org/abs/1704.08224
 

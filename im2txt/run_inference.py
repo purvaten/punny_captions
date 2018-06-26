@@ -22,13 +22,18 @@ import math
 import os
 import pickle
 
-
+import numpy as np
 import tensorflow as tf
 
 from im2txt import configuration
 from im2txt import inference_wrapper
 from im2txt.inference_utils import caption_generator
 from im2txt.inference_utils import vocabulary
+
+from inception_resnet_v2 import InceptionResNetV2, preprocess_input
+
+from keras.preprocessing import image
+from keras.applications.imagenet_utils import decode_predictions
 
 from nltk.corpus import stopwords
 
@@ -65,6 +70,29 @@ def get_puns(keywords):
   return puns
 
 
+def get_objs(img_path):
+  """ Return list of top 5 object categories predicted by Inception-ResNet-v2 model."""
+  model = InceptionResNetV2(include_top=True, weights='imagenet')
+  img = image.load_img(img_path, target_size=(299, 299))
+  x = image.img_to_array(img)
+  x = np.expand_dims(x, axis=0)
+  x = preprocess_input(x)
+  preds = model.predict(x)
+  return decode_predictions(preds)
+
+
+def format_objs(object_categories):
+  """Return correctly formatted list of object categories."""
+  obj_strings = [object_categories[0][i][1] for i in range(len(object_categories[0]))]
+  objs = []
+  # For object category with multiple words, split as separate words
+  # e.g. chocolate_sauce -> chocolate, sauce
+  for string in obj_strings:
+    splits = string.split('_')
+    objs.extend(splits)
+  return objs
+
+
 def main(_):
   # Build the inference graph.
   g = tf.Graph()
@@ -83,6 +111,13 @@ def main(_):
   tf.logging.info("Running caption generation on %d files matching %s",
                   len(filenames), FLAGS.input_files)
 
+  # Extract the top-5 object categories predicted by Inception-ResNet-v2 model
+  img_categories = []
+  for filename in filenames:
+    object_categories = get_objs(filename)
+    categories = format_objs(object_categories)
+    img_categories.append(categories)
+
   with tf.Session(graph=g) as sess:
     # Load the model from checkpoint.
     restore_fn(sess)
@@ -92,7 +127,7 @@ def main(_):
     # available beam search parameters.
     generator = caption_generator.CaptionGenerator(model, vocab)
 
-    for filename in filenames:
+    for index, filename in enumerate(filenames):
       with tf.gfile.GFile(filename, "rb") as f:
         image = f.read()
       keywords = []
@@ -106,7 +141,8 @@ def main(_):
         words = remove_stopwords(sentence)
         keywords = list(set(keywords).union(set(words)))
 
-      # Get puns for keywords obtained from CaptionGenerator and pass to PunnyCaptionGenerator
+      # Get puns for keywords obtained from CaptionGenerator and Inception ResNet model
+      keywords = list(set(keywords).union(set(img_categories[index])))
       puns = get_puns(keywords)
       generator = caption_generator.PunnyCaptionGenerator(model, puns, vocab)
       captions = generator.beam_search(sess, image)
