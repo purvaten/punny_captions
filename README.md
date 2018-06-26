@@ -5,6 +5,12 @@ The pretrained model for the "Show and Tell" [paper](https://arxiv.org/abs/1609.
 
 Full text available at: https://arxiv.org/abs/1704.08224
 
+## Implementation Specifics
+### A note about using Inception ResNet model
+The paper uses the top 5 object categories from the Inception-ResNet-v2 model. We observe that many of these object categories contain multiple words. For example, **meat_loaf** or **chocolate_sauce**. Since the pun dictionary does not account for such words, we initially attempted to go about it by splitting these into separate tags. However, the individual words are not always relevent to the context. This can especially be a problem if their pun counterparts appear in the punny caption with high probability, resulting in the intended punny caption not being very relevant.
+
+We work around this by enforcing a probability filter to the obtained top 5 object categories. We only consider them if the probability > 0.1. This ensures that only relevant tags are used for pun generation.
+
 ## Resources
 1. JSON file containing pun words associated with coco images : [coco_puns.json](https://drive.google.com/open?id=1AKiq2ryxXck_l2kQVqsAgkZKVVaPwarK)
 2. Global pun dictionary : [pun_dict](https://drive.google.com/open?id=1mpd8yAMvMeWOgWpn2p1arTUKDRRRFuOt) (python pickle format)

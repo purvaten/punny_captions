@@ -55,18 +55,18 @@ cachedStopWords = stopwords.words("english") + ['.']
 
 
 def remove_stopwords(caption):
-  """Return list of key words from caption."""
-  keywords = [word for word in caption.split() if word not in cachedStopWords]
-  return keywords
+  """Return list of tags from caption."""
+  tags = [word for word in caption.split() if word not in cachedStopWords]
+  return tags
 
 
-def get_puns(keywords):
-  """Return a list of puns corresponding to the keywords list."""
+def get_puns(tags):
+  """Return a list of puns corresponding to the tags list."""
   with open(FLAGS.pun_dict, 'rb') as f:
     u = pickle._Unpickler(f)
     u.encoding = 'latin1'
     p = u.load()
-  puns = [list(p[keywords[i]])[j] for i in range(len(keywords)) if keywords[i] in p for j in range(len(p[keywords[i]]))]
+  puns = [list(p[tags[i]])[j] for i in range(len(tags)) if tags[i] in p for j in range(len(p[tags[i]]))]
   return puns
 
 
@@ -83,7 +83,8 @@ def get_objs(img_path):
 
 def format_objs(object_categories):
   """Return correctly formatted list of object categories."""
-  obj_strings = [object_categories[0][i][1] for i in range(len(object_categories[0]))]
+  # Applying probability threshold of 0.1 to maintain relevant words only
+  obj_strings = [object_categories[0][i][1] for i in range(len(object_categories[0])) if object_categories[0][i][2] > 0.1]
   objs = []
   # For object category with multiple words, split as separate words
   # e.g. chocolate_sauce -> chocolate, sauce
@@ -111,7 +112,7 @@ def main(_):
   tf.logging.info("Running caption generation on %d files matching %s",
                   len(filenames), FLAGS.input_files)
 
-  # Extract the top-5 object categories predicted by Inception-ResNet-v2 model
+  # Extract the top object categories predicted by Inception-ResNet-v2 model
   img_categories = []
   for filename in filenames:
     object_categories = get_objs(filename)
@@ -130,7 +131,7 @@ def main(_):
     for index, filename in enumerate(filenames):
       with tf.gfile.GFile(filename, "rb") as f:
         image = f.read()
-      keywords = []
+      tags = []
       captions = generator.beam_search(sess, image)
       print("\nCaptions for image %s:" % os.path.basename(filename))
       for i, caption in enumerate(captions):
@@ -139,11 +140,11 @@ def main(_):
         sentence = " ".join(sentence)
         print("  %d) %s (p=%f)" % (i, sentence, math.exp(caption.logprob)))
         words = remove_stopwords(sentence)
-        keywords = list(set(keywords).union(set(words)))
+        tags = list(set(tags).union(set(words)))
 
-      # Get puns for keywords obtained from CaptionGenerator and Inception ResNet model
-      keywords = list(set(keywords).union(set(img_categories[index])))
-      puns = get_puns(keywords)
+      # Get puns for tags obtained from CaptionGenerator and Inception ResNet model
+      tags = list(set(tags).union(set(img_categories[index])))
+      puns = get_puns(tags)
       generator = caption_generator.PunnyCaptionGenerator(model, puns, vocab)
       captions = generator.beam_search(sess, image)
       print("\nPunny Captions for image %s:" % os.path.basename(filename))
