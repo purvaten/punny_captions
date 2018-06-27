@@ -5,7 +5,7 @@ The pretrained model for the "Show and Tell" [paper](https://arxiv.org/abs/1609.
 
 Full text available at: https://arxiv.org/abs/1704.08224
 
-## Implementation Specifics : Modifications from paper
+## Implementation Specifics : Modifications to paper
 The paper uses the top 5 object categories from the Inception-ResNet-v2 model. We observe that many of these object categories contain multiple words. For example, **meat_loaf** or **chocolate_sauce**. Since the pun dictionary does not account for such words, we initially attempted to go about it by splitting these into separate tags. However, the individual words are not always relevent to the context. This can especially be a problem if their pun counterparts appear in the punny caption with high probability, resulting in the intended punny caption not being very relevant.
 
 We work around this by enforcing a probability filter to the obtained top 5 object categories. We only consider them if the **probability > 0.1**. This ensures that only relevant tags are used for pun generation.
@@ -75,12 +75,12 @@ Punny Captions for image test.jpg:
   14) a piece of cake folk on a plate (logp=-22.297132)
 
 ```
-**_NOTE : _The output is iteration-wise so that the pun word can be observed in the first position for the first three outputs, second position for the next three outputs, and so on._**
+**NOTE : The output is iteration-wise so that the pun word can be observed in the first position for the first three outputs, second position for the next three outputs, and so on.**
 
 ## Results
-| Image        | Tags:Puns           | Punny Caption  |
-| ------------- |:-------------:| -----:|
+| Image | Tags:Puns | Punny Caption |
+| --- | --- | --- |
 | ![woman_phone](https://user-images.githubusercontent.com/13128829/41987519-061e2c80-7a57-11e8-91b7-08c298b7ecb6.jpg) | (cell : sell) | a woman sell her cell phone on the sidewalk |
 | ![bear](https://user-images.githubusercontent.com/13128829/41987734-b600349a-7a57-11e8-8847-202370acda02.jpg) | (bear : bare) | a bare bear is standing on a rock |
-| ![zebras](https://user-images.githubusercontent.com/13128829/41987867-18df76ac-7a58-11e8-9ca1-28f52ed68665.jpg) | (herd : heard      ) | a heard of zebras are standing in a field |
-| ![food](https://user-images.githubusercontent.com/13128829/41988460-d06b9ed0-7a59-11e8-859a-a0eff51bd028.jpg) | (white : wight) (meat : meet, mete) (fork : folk) | meet and broccoli on a plate with a fork |
+| ![zebras](https://user-images.githubusercontent.com/13128829/41987867-18df76ac-7a58-11e8-9ca1-28f52ed68665.jpg) | (herd : heard) | a heard of zebras are standing in a field |
+| ![food](https://user-images.githubusercontent.com/13128829/41988460-d06b9ed0-7a59-11e8-859a-a0eff51bd028.jpg) | (white : wight)<br>(meat : meet, mete)<br>(fork : folk) | meet and broccoli on a plate with a fork |
