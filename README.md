@@ -75,10 +75,10 @@ Punny Captions for image test.jpg:
   14) a piece of cake folk on a plate (logp=-22.297132)
 
 ```
-**NOTE : The output is iteration-wise so that the pun word can be observed in the first position for the first three outputs, second position for the next three outputs, and so on.**
+**_NOTE_** : _The output is iteration-wise so that the pun word can be observed in the first position for the first three outputs, second position for the next three outputs, and so on._
 
 ## Results
-| Image | Tags:Puns | Punny Caption |
+| Image | Tag : Puns | Punny Caption |
 | --- | --- | --- |
 | ![woman_phone](https://user-images.githubusercontent.com/13128829/41987519-061e2c80-7a57-11e8-91b7-08c298b7ecb6.jpg) | (cell : sell) | a woman sell her cell phone on the sidewalk |
 | ![bear](https://user-images.githubusercontent.com/13128829/41987734-b600349a-7a57-11e8-8847-202370acda02.jpg) | (bear : bare) | a bare bear is standing on a rock |
